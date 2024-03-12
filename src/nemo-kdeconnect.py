@@ -18,7 +18,7 @@ locale_domain = "nemo-kdeconnect"
 
 # Get correct icon name from device type string
 def get_device_icon(device_type):
-    if device_type == "dektop":
+    if device_type == "desktop":
         return "computer-symbolic"
     elif device_type == "laptop":
         return "laptop-symbolic"
