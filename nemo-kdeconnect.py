@@ -5,7 +5,7 @@
 # by JoeJoeTV
 # https://github.com/JoeJoeTV/nemo-extension-kdeconnect
 
-EXTENSION_VERSION="1.0.0"
+EXTENSION_VERSION="1.0.1"
 
 import os, gi, gettext, locale
 
