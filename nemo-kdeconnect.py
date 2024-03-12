@@ -4,20 +4,32 @@
 # Description: KDE Connect Integration for the Nemo file manager
 # by JoeJoeTV
 # https://github.com/JoeJoeTV/nemo-extension-kdeconnect
-# Version: 1.0.0
 
-import os, gi
+EXTENSION_VERSION="1.0.0"
+
+import os, gi, gettext, locale
 
 gi.require_version('Notify', '0.7')
 from gi.repository import GObject, Nemo, Gtk, Gio, GLib, Notify
 
-import gettext, locale
+# Setup localization
+try:
+    t = gettext.translation(
+            "nemo-kdeconnect",
+            os.path.dirname(os.path.realpath(__file__)) + "/nemo-kdeconnect/locale",    # nemo-kdeconnect/locale/ subfolder next to script
+            fallback=False)
+except OSError as e:
+    t = gettext.translation(
+            "nemo-kdeconnect",
+            "/usr/share/locale",    # system locale directory
+            fallback=True)
 
-locale_dir = os.path.dirname(os.path.realpath(__file__)) + "/nemo-kdeconnect/locale" # GLib.get_home_dir() + "/.local/share/locale"
-locale_domain = "nemo-kdeconnect"
+# Install _() function into namespace
+t.install()
 
-# Get correct icon name from device type string
+
 def get_device_icon(device_type):
+    """ Given a device type, returns the fitting icon for the device or a fallback icon """
     if device_type == "desktop":
         return "computer-symbolic"
     elif device_type == "laptop":
@@ -38,29 +50,23 @@ class KDEConnectMenu(GObject.GObject, Nemo.MenuProvider, Nemo.NameAndDescProvide
         
         # Initialize DBus Proxy
         self.dbus_daemon = Gio.DBusProxy.new_for_bus_sync(Gio.BusType.SESSION, Gio.DBusProxyFlags.NONE, None, "org.kde.kdeconnect", "/modules/kdeconnect", "org.kde.kdeconnect.daemon", None)
+        
+        print(f"[KDEConnectMenu] KDE Connect Nemo Extension v{EXTENSION_VERSION} initialized.")
     
     def send_files(self, menu, files, device):
-        # Setup translation
-        locale.setlocale(locale.LC_ALL, "")
-        gettext.bindtextdomain(locale_domain, locale_dir)
-        gettext.textdomain(locale_domain)
-        _ = gettext.gettext
+        """ Tells KDE Connect to send the specified files to the specified device and notifies the user """
         
-        # Add all file URIs to a list
-        uri_list = []
-        for file in files:
-            uri_list.append(file.get_uri())
+        # Get list of file URIs
+        uri_list = [file.get_uri() for file in files]
         
-        try:
-            dbus_share = Gio.DBusProxy.new_for_bus_sync(Gio.BusType.SESSION, Gio.DBusProxyFlags.NONE, None, "org.kde.kdeconnect", "/modules/kdeconnect/devices/"+device["id"]+"/share", "org.kde.kdeconnect.device.share", None)
-            
-            # Convert URI list to GVariant and call DBus function
-            variant_uris = GLib.Variant("(as)", (uri_list,))
-            dbus_share.call_sync("shareUrls", variant_uris, Gio.DBusCallFlags.NONE, -1, None)
-        except Exception as e:
-            raise Exception(e)
+        # Create DBus proxy for specific device path
+        dbus_share = Gio.DBusProxy.new_for_bus_sync(Gio.BusType.SESSION, Gio.DBusProxyFlags.NONE, None, "org.kde.kdeconnect", "/modules/kdeconnect/devices/"+device["id"]+"/share", "org.kde.kdeconnect.device.share", None)
         
-        print("[KDEConnectMenu] Sending "+str(len(files))+" files to "+device["name"]+"("+device["id"]+")")
+        # Convert URI list to GVariant and call DBus function
+        variant_uris = GLib.Variant("(as)", (uri_list,))
+        dbus_share.call_sync("shareUrls", variant_uris, Gio.DBusCallFlags.NONE, -1, None)
+        
+        print(f"[KDEConnectMenu] Sending {len(files)} files to {device['name']}({device['id']})")
         
         # Send notification informing the user that the files are being sent
         Notify.init("KDEConnectMenu")
@@ -71,30 +77,27 @@ class KDEConnectMenu(GObject.GObject, Nemo.MenuProvider, Nemo.NameAndDescProvide
         send_notification.show()
     
     def get_connected_devices(self):
+        """ Gets a list of connected devices from the KDE Connect daemon using DBus """
+        
         devices = []
         
-        try:
-            # Get list of available devices from DBus
-            params_variant = GLib.Variant("(bb)", (True, True))        
-            device_ids = self.dbus_daemon.call_sync("devices", params_variant, Gio.DBusCallFlags.NONE, -1, None).unpack()[0]
-            device_names = self.dbus_daemon.call_sync("deviceNames", params_variant, Gio.DBusCallFlags.NONE, -1, None).unpack()[0]
+        # Get list of available devices from DBus
+        params_variant = GLib.Variant("(bb)", (True, True))        
+        device_ids = self.dbus_daemon.call_sync("devices", params_variant, Gio.DBusCallFlags.NONE, -1, None).unpack()[0]
+        device_names = self.dbus_daemon.call_sync("deviceNames", params_variant, Gio.DBusCallFlags.NONE, -1, None).unpack()[0]
+        
+        for device_id in device_ids:
+            dbus_device = Gio.DBusProxy.new_for_bus_sync(Gio.BusType.SESSION, Gio.DBusProxyFlags.NONE, None, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + str(device_id), "org.kde.kdeconnect.device", None)
             
-            for device_id in device_ids:
-                dbus_device = Gio.DBusProxy.new_for_bus_sync(Gio.BusType.SESSION, Gio.DBusProxyFlags.NONE, None, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + str(device_id), "org.kde.kdeconnect.device", None)
-                
-                device_type = dbus_device.get_cached_property("type").unpack()
-                
-                # Only add devices to list, which support the Share Plugin
-                if "kdeconnect_share" in dbus_device.get_cached_property("supportedPlugins").unpack():                
-                    element = {
-                        "id": device_id,
-                        "name": device_names[device_id],
-                        "type": device_type
-                    }
-                    devices.append(element)
-                
-        except Exception as e:
-            raise Exception(e)
+            device_type = dbus_device.get_cached_property("type").unpack()
+            
+            # Only add devices to list, which support the Share Plugin
+            if "kdeconnect_share" in dbus_device.get_cached_property("supportedPlugins").unpack():     
+                devices.append({
+                    "id": device_id,
+                    "name": device_names[device_id],
+                    "type": device_type
+                })
         
         return devices
         
@@ -102,21 +105,21 @@ class KDEConnectMenu(GObject.GObject, Nemo.MenuProvider, Nemo.NameAndDescProvide
         # Get list of connected devices
         devices = self.get_connected_devices()
         
-        # If there are zero available devices, do nothing
+        # If there are zero available devices, return greyed-out menu item
         if len(devices) == 0:
-            return
+            return [
+                Nemo.MenuItem(
+                    name="KDEConnectMenu::SendViaKDEConnect",
+                    label=_("Send via KDE Connect"),
+                    tip=_("No devices available to send files to"),
+                    icon="kdeconnect",
+                    sensitive=False)
+            ]
         
         # Only continue if all files are actually files 
         for file in files:
-            if file.get_uri_scheme() != 'file' or file.is_directory():
-                #print("NO FILE GODDAMNIT!!!")
+            if (file.get_uri_scheme() != 'file') or file.is_directory():
                 return
-        
-        # Setup translation
-        locale.setlocale(locale.LC_ALL, "")
-        gettext.bindtextdomain(locale_domain, locale_dir)
-        gettext.textdomain(locale_domain)
-        _ = gettext.gettext
         
         # Main Menu Item
         main_menuitem = Nemo.MenuItem(name="KDEConnectMenu::SendViaKDEConnect",
@@ -140,9 +143,4 @@ class KDEConnectMenu(GObject.GObject, Nemo.MenuProvider, Nemo.NameAndDescProvide
         return [main_menuitem]
     
     def get_name_and_desc(self):
-        # Setup translation
-        locale.setlocale(locale.LC_ALL, "")
-        gettext.bindtextdomain(locale_domain, locale_dir)
-        gettext.textdomain(locale_domain)
-        _ = gettext.gettext
         return [("Nemo KDE Connect:::"+_("Share files to connected devices via KDE Connect directly from within Nemo."))]
