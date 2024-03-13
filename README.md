@@ -1,7 +1,7 @@
 
 # KDEConnect Nemo Extension
 
- This extension for the Nemo file manager adds the ability to send files to devices connected using KDEConnect directly from Nemo.
+ This extension for the Nemo file manager adds the ability to send files to devices connected using KDE Connect directly from Nemo.
 
 # Usage
 
@@ -11,11 +11,11 @@
 
 ## Debian based Distributions (e.g. Ubuntu, Linux Mint, ...)
 
- Install the deb file from the [Releases Section](https://github.com/JoeJoeTV/nemo-extension-kdeconnect/releases)
+ Install the `.deb` file from the [releases section](https://github.com/JoeJoeTV/nemo-extension-kdeconnect/releases)
 
 ## Other Distributions
 
- Download the .tar.gz file from the [Releases Section](https://github.com/JoeJoeTV/nemo-extension-kdeconnect/releases) and put it in the nemo-python extensions folder (`~/.local/share/nemo-python/extensions`)
+ Download the `.tar.gz` or `.zip` file from the [releases section](https://github.com/JoeJoeTV/nemo-extension-kdeconnect/releases) and extract the contents of the `src/` folder in the archive into the nemo-python extensions folder (`~/.local/share/nemo-python/extensions`)
 
 # Translations
 
@@ -23,4 +23,4 @@ If anyone wants to translate this extension, you can just open a pull request wi
 
 # Bugs & Issues
 
-If you find any Bugs or Issure, please head over to the Issues tab and open a neu Issue there.
+If you find any bugs or issues, please head over to the "Issues" tab and open a new issue there.
