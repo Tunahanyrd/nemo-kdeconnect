@@ -18,5 +18,7 @@ build() {
 
 package() {
     install -D "${srcdir}/nemo-kdeconnect.py" "${pkgdir}/usr/share/nemo-python/extensions/nemo-kdeconnect.py"
-    find "nemo-kdeconnect/" -type f -name \*.mo -print -exec install -D "${srcdir}/{}" "${pkgdir}/usr/share/nemo-python/extensions/{}" \;
+    cd nemo-kdeconnect
+    find "locale/" -type f -name \*.mo -print -exec install -D "${srcdir}/nemo-kdeconnect/{}" "${pkgdir}/usr/share/{}" \;
+    cd ..
 }
