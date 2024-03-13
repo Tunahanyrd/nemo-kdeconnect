@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-12-17 22:19+0100\n"
+"POT-Creation-Date: 2024-03-13 01:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,27 +15,31 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: src/nemo-kdeconnect.py:65
+#: src/nemo-kdeconnect.py:73
 msgid "Sending to {device_name}..."
 msgstr ""
 
-#: src/nemo-kdeconnect.py:66
+#: src/nemo-kdeconnect.py:74
 msgid "Sending {num_files} file(s) to device"
 msgstr ""
 
-#: src/nemo-kdeconnect.py:115
+#: src/nemo-kdeconnect.py:113 src/nemo-kdeconnect.py:126
 msgid "Send via KDE Connect"
 msgstr ""
 
-#: src/nemo-kdeconnect.py:116
+#: src/nemo-kdeconnect.py:114
+msgid "No devices available to send files to"
+msgstr ""
+
+#: src/nemo-kdeconnect.py:127
 msgid "Send selected files to connected devices using KDE Connect"
 msgstr ""
 
-#: src/nemo-kdeconnect.py:126
+#: src/nemo-kdeconnect.py:137
 msgid "Send File to {device_name}"
 msgstr ""
 
-#: src/nemo-kdeconnect.py:135
+#: src/nemo-kdeconnect.py:146
 msgid "Share files to connected devices via KDE Connect directly from within Nemo."
 msgstr ""
 
