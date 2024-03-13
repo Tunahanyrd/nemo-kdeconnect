@@ -10,7 +10,7 @@ EXTENSION_VERSION="1.0.1"
 import os, gi, gettext, locale
 
 gi.require_version('Notify', '0.7')
-from gi.repository import GObject, Nemo, Gtk, Gio, GLib, Notify
+from gi.repository import GObject, Nemo, Gio, GLib, Notify
 
 # Setup localization
 try:
