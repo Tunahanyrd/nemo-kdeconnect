@@ -55,10 +55,12 @@ def install_extension(repo_root: Path, extensions_dir: Path) -> None:
 def get_paths() -> dict[str, Path]:
     config_home = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")))
     cache_home = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache")))
+    data_home = Path(os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local/share")))
     return {
         "config_file": config_home / "nemo-kdeconnect" / "config.json",
         "state_file": cache_home / "nemo-kdeconnect" / "sidebar_state.json",
         "bookmarks_file": config_home / "gtk-3.0" / "bookmarks",
+        "uri_handler_desktop_file": data_home / "applications" / "nemo-kdeconnect-uri-handler.desktop",
     }
 
 
@@ -101,6 +103,7 @@ def cleanup_managed_sidebar_bookmarks(state_file: Path, bookmarks_file: Path) ->
 
 def uninstall_extension(extensions_dir: Path) -> None:
     plugin_target = extensions_dir / "nemo-kdeconnect.py"
+    uri_handler_target = extensions_dir / "nemo-kdeconnect-uri-handler.py"
     locale_root = extensions_dir / "nemo-kdeconnect"
     pycache_dir = extensions_dir / "__pycache__"
 
@@ -108,6 +111,7 @@ def uninstall_extension(extensions_dir: Path) -> None:
     config_file = paths["config_file"]
     state_file = paths["state_file"]
     bookmarks_file = paths["bookmarks_file"]
+    uri_handler_desktop_file = paths["uri_handler_desktop_file"]
 
     print(f"Uninstalling nemo-kdeconnect from: {extensions_dir}")
 
@@ -115,6 +119,10 @@ def uninstall_extension(extensions_dir: Path) -> None:
 
     if plugin_target.exists():
         plugin_target.unlink()
+    if uri_handler_target.exists():
+        uri_handler_target.unlink()
+    if uri_handler_desktop_file.exists():
+        uri_handler_desktop_file.unlink()
 
     if locale_root.exists():
         shutil.rmtree(locale_root)
@@ -138,10 +146,12 @@ def uninstall_extension(extensions_dir: Path) -> None:
         except OSError:
             pass
 
-    print("Uninstallation completed. kdeconnect:// URI handler setting was left unchanged.")
+    restore_kdeconnect_handler_if_needed()
+
+    print("Uninstallation completed.")
 
 
-def configure_kdeconnect_handler(skip_handler_setup: bool) -> None:
+def configure_kdeconnect_handler(repo_root: Path, extensions_dir: Path, skip_handler_setup: bool) -> None:
     if skip_handler_setup:
         return
 
@@ -150,24 +160,34 @@ def configure_kdeconnect_handler(skip_handler_setup: bool) -> None:
         print("warning: xdg-mime is missing, skipping kdeconnect:// handler setup")
         return
 
-    app_dirs = [Path.home() / ".local/share/applications", Path("/usr/share/applications")]
-    handler_candidates = ["org.kde.kdeconnect.handler.desktop", "kdeconnect-handler.desktop"]
-
-    handler_desktop = None
-    for candidate in handler_candidates:
-        for app_dir in app_dirs:
-            if (app_dir / candidate).exists():
-                handler_desktop = candidate
-                break
-        if handler_desktop:
-            break
-
-    if not handler_desktop:
-        print("warning: KDE Connect handler desktop entry was not found, skipping URI handler setup")
+    uri_handler_source = repo_root / "scripts" / "kdeconnect_uri_handler.py"
+    if not uri_handler_source.exists():
+        print(f"warning: URI handler source was not found ({uri_handler_source}), skipping URI handler setup")
         return
 
+    uri_handler_target = extensions_dir / "nemo-kdeconnect-uri-handler.py"
+    uri_handler_target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(uri_handler_source, uri_handler_target)
+    uri_handler_target.chmod(0o755)
+
+    uri_handler_desktop_file = get_paths()["uri_handler_desktop_file"]
+    uri_handler_desktop_file.parent.mkdir(parents=True, exist_ok=True)
+    escaped_target = str(uri_handler_target).replace('"', '\\"')
+    desktop_content = (
+        "[Desktop Entry]\n"
+        "Name=Nemo KDE Connect URI Handler\n"
+        f"Exec=python3 \"{escaped_target}\" %u\n"
+        "Type=Application\n"
+        "NoDisplay=true\n"
+        "MimeType=x-scheme-handler/kdeconnect;\n"
+        "Terminal=false\n"
+    )
+    uri_handler_desktop_file.write_text(desktop_content, encoding="utf-8")
+
+    desktop_name = uri_handler_desktop_file.name
+
     subprocess.run(
-        [xdg_mime, "default", handler_desktop, "x-scheme-handler/kdeconnect"],
+        [xdg_mime, "default", desktop_name, "x-scheme-handler/kdeconnect"],
         check=False,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -180,11 +200,46 @@ def configure_kdeconnect_handler(skip_handler_setup: bool) -> None:
         capture_output=True,
     )
     current_default = query_result.stdout.strip()
-    if current_default == handler_desktop:
-        print(f"Configured kdeconnect:// URI handler: {handler_desktop}")
+    if current_default == desktop_name:
+        print(f"Configured kdeconnect:// URI handler: {desktop_name}")
     else:
         display_value = current_default if current_default else "none"
         print(f"warning: failed to set kdeconnect:// handler (current: {display_value})")
+
+
+def restore_kdeconnect_handler_if_needed() -> None:
+    xdg_mime = shutil.which("xdg-mime")
+    if not xdg_mime:
+        return
+
+    uri_handler_desktop_file = get_paths()["uri_handler_desktop_file"]
+    desktop_name = uri_handler_desktop_file.name
+    query_result = subprocess.run(
+        [xdg_mime, "query", "default", "x-scheme-handler/kdeconnect"],
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+    current_default = query_result.stdout.strip()
+    if current_default != desktop_name:
+        return
+
+    app_dirs = [Path.home() / ".local/share/applications", Path("/usr/share/applications")]
+    fallback_candidates = ["org.kde.kdeconnect.handler.desktop", "kdeconnect-handler.desktop"]
+
+    for candidate in fallback_candidates:
+        for app_dir in app_dirs:
+            if (app_dir / candidate).exists():
+                subprocess.run(
+                    [xdg_mime, "default", candidate, "x-scheme-handler/kdeconnect"],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                print(f"Restored kdeconnect:// URI handler to: {candidate}")
+                return
+
+    print("No fallback kdeconnect:// handler found; URI association is left unchanged.")
 
 
 def validate_language(language: str) -> None:
@@ -261,7 +316,7 @@ def main() -> int:
         uninstall_extension(extensions_dir)
     else:
         install_extension(repo_root, extensions_dir)
-        configure_kdeconnect_handler(args.skip_kdeconnect_handler)
+        configure_kdeconnect_handler(repo_root, extensions_dir, args.skip_kdeconnect_handler)
 
         if args.language:
             write_language_config(args.language)

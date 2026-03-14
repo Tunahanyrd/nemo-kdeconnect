@@ -9,6 +9,11 @@ EXTENSIONS_DIR="${NEMO_EXTENSIONS_DIR:-$EXTENSIONS_DIR_DEFAULT}"
 LOCALE_SOURCE_DIR="${REPO_DIR}/src/nemo-kdeconnect/locale"
 LOCALE_TARGET_DIR="${EXTENSIONS_DIR}/nemo-kdeconnect/locale"
 PLUGIN_TARGET="${EXTENSIONS_DIR}/nemo-kdeconnect.py"
+URI_HANDLER_SOURCE="${REPO_DIR}/scripts/kdeconnect_uri_handler.py"
+URI_HANDLER_TARGET="${EXTENSIONS_DIR}/nemo-kdeconnect-uri-handler.py"
+APPLICATIONS_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+URI_HANDLER_DESKTOP_FILE="nemo-kdeconnect-uri-handler.desktop"
+URI_HANDLER_DESKTOP_PATH="${APPLICATIONS_DIR}/${URI_HANDLER_DESKTOP_FILE}"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nemo-kdeconnect"
 CONFIG_FILE="${CONFIG_DIR}/config.json"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/nemo-kdeconnect"
@@ -60,27 +65,52 @@ configure_kdeconnect_handler() {
         return
     fi
 
-    handler_desktop=""
-    for candidate in org.kde.kdeconnect.handler.desktop kdeconnect-handler.desktop; do
-        if [ -f "$HOME/.local/share/applications/$candidate" ] || [ -f "/usr/share/applications/$candidate" ]; then
-            handler_desktop="$candidate"
-            break
-        fi
-    done
-
-    if [ -z "$handler_desktop" ]; then
-        echo "warning: KDE Connect handler desktop entry was not found, skipping URI handler setup"
+    if [ ! -f "${URI_HANDLER_SOURCE}" ]; then
+        echo "warning: URI handler source was not found (${URI_HANDLER_SOURCE}), skipping URI handler setup"
         return
     fi
 
-    xdg-mime default "$handler_desktop" x-scheme-handler/kdeconnect >/dev/null 2>&1 || true
+    install -m 0755 "${URI_HANDLER_SOURCE}" "${URI_HANDLER_TARGET}"
+    install -d "${APPLICATIONS_DIR}"
+    cat > "${URI_HANDLER_DESKTOP_PATH}" <<EOF
+[Desktop Entry]
+Name=Nemo KDE Connect URI Handler
+Exec=python3 "${URI_HANDLER_TARGET}" %u
+Type=Application
+NoDisplay=true
+MimeType=x-scheme-handler/kdeconnect;
+Terminal=false
+EOF
+
+    xdg-mime default "${URI_HANDLER_DESKTOP_FILE}" x-scheme-handler/kdeconnect >/dev/null 2>&1 || true
     current_default=$(xdg-mime query default x-scheme-handler/kdeconnect 2>/dev/null || true)
 
-    if [ "$current_default" = "$handler_desktop" ]; then
-        echo "Configured kdeconnect:// URI handler: $handler_desktop"
+    if [ "$current_default" = "${URI_HANDLER_DESKTOP_FILE}" ]; then
+        echo "Configured kdeconnect:// URI handler: ${URI_HANDLER_DESKTOP_FILE}"
     else
         echo "warning: failed to set kdeconnect:// handler (current: ${current_default:-none})"
     fi
+}
+
+restore_kdeconnect_handler_if_needed() {
+    if ! command -v xdg-mime >/dev/null 2>&1; then
+        return
+    fi
+
+    current_default=$(xdg-mime query default x-scheme-handler/kdeconnect 2>/dev/null || true)
+    if [ "${current_default}" != "${URI_HANDLER_DESKTOP_FILE}" ]; then
+        return
+    fi
+
+    for candidate in org.kde.kdeconnect.handler.desktop kdeconnect-handler.desktop; do
+        if [ -f "$HOME/.local/share/applications/$candidate" ] || [ -f "/usr/share/applications/$candidate" ]; then
+            xdg-mime default "$candidate" x-scheme-handler/kdeconnect >/dev/null 2>&1 || true
+            echo "Restored kdeconnect:// URI handler to: $candidate"
+            return
+        fi
+    done
+
+    echo "No fallback kdeconnect:// handler found; URI association is left unchanged."
 }
 
 configure_language_override() {
@@ -161,6 +191,8 @@ uninstall_extension() {
     cleanup_managed_sidebar_bookmarks
 
     rm -f "${PLUGIN_TARGET}"
+    rm -f "${URI_HANDLER_TARGET}"
+    rm -f "${URI_HANDLER_DESKTOP_PATH}"
     rm -rf "${EXTENSIONS_DIR}/nemo-kdeconnect"
 
     if [ -d "${EXTENSIONS_DIR}/__pycache__" ]; then
@@ -173,7 +205,9 @@ uninstall_extension() {
     rmdir "${CACHE_DIR}" >/dev/null 2>&1 || true
     rmdir "${CONFIG_DIR}" >/dev/null 2>&1 || true
 
-    echo "Uninstallation completed. kdeconnect:// URI handler setting was left unchanged."
+    restore_kdeconnect_handler_if_needed
+
+    echo "Uninstallation completed."
 }
 
 while [ "$#" -gt 0 ]; do

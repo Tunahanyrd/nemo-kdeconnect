@@ -9,7 +9,7 @@ This extension for the Nemo file manager integrates KDE Connect directly into Ne
 - Browse mounted phone storage from Nemo
 - Show mounted phone storage in Nemo sidebar via managed bookmarks
 - Auto-recover attempt when `kdeconnectd` is not running
-- Installer auto-configures `kdeconnect://` URI handler when possible
+- Installer auto-configures a custom `kdeconnect://` handler that opens Nemo
 
 # Usage
 
@@ -35,7 +35,7 @@ When a phone storage is mounted, it is added to the Nemo sidebar (Places) and ca
 sh scripts/install.sh --restart-nemo
 ```
 
-This installer also tries to configure `kdeconnect://` URI handling via `xdg-mime`.
+This installer also installs a custom `kdeconnect://` handler and registers it via `xdg-mime`, so device links open in Nemo.
 
 Optional target path:
 
@@ -49,7 +49,7 @@ NEMO_EXTENSIONS_DIR="$HOME/.local/share/nemo-python/extensions" sh scripts/insta
 uv run scripts/install.py --restart-nemo
 ```
 
-This installer also tries to configure `kdeconnect://` URI handling via `xdg-mime`.
+This installer also installs a custom `kdeconnect://` handler and registers it via `xdg-mime`, so device links open in Nemo.
 
 Optional target path:
 
@@ -93,7 +93,7 @@ sh scripts/install.sh --uninstall --restart-nemo
 uv run scripts/install.py --uninstall --restart-nemo
 ```
 
-Note: uninstall leaves your global `kdeconnect://` URI handler association unchanged.
+Note: uninstall removes the custom handler desktop entry and tries to restore a system KDE Connect fallback handler if available.
 
 ## Debian based Distributions (e.g. Ubuntu, Linux Mint, ...)
 
