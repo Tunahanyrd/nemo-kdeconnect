@@ -1,13 +1,15 @@
 # Maintainer: JoeJoeTV <joejoetv@joejoetv.de>
+# Co-Maintainer: Tunahanyrd <https://github.com/Tunahanyrd>
 
 pkgname=nemo-kdeconnect
-pkgver=1.0.1
+pkgver=1.3.0
 pkgrel=1
-pkgdesc='Extension for the Nemo file manager that adds the ability to send files to devices connected using KDEConnect directly from Nemo.'
-arch=('all')
+pkgdesc='Nemo extension for KDE Connect file sharing and phone storage mounting (SFTP) with sidebar integration.'
+arch=('any')
 url="https://github.com/JoeJoeTV/nemo-extension-kdeconnect"
 license=('GPL-3')
-depends=('python3' 'nemo' 'kdeconnect' 'python-nemo')
+depends=('python' 'python-gobject' 'libnotify' 'nemo' 'kdeconnect' 'python-nemo')
+makedepends=('gettext')
 provides=('nemo-kdeconnect')
 #sha256sums=('SKIP')
 

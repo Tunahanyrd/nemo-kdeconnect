@@ -9,13 +9,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-14 00:00+0000\n"
 "PO-Revision-Date: 2026-03-14 00:00+0000\n"
-"Last-Translator: \n"
-"Language-Team: JoeJoeTV, Tunahanyrd\n"
-"Language: en\n"
+"Last-Translator: Tunahanyrd <github.com/Tunahanyrd>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: GPT-5.3-Codex\n"
 
 #: src/nemo-kdeconnect.py:255
@@ -24,107 +24,107 @@ msgstr "KDE Connect: {device_name}"
 
 #: src/nemo-kdeconnect.py:373
 msgid "Sending to {device_name}..."
-msgstr "Sending to {device_name}..."
+msgstr "{device_name} cihazına gönderiliyor..."
 
 #: src/nemo-kdeconnect.py:374
 msgid "Sending {num_files} file(s) to device"
-msgstr "Sending {num_files} file(s) to device"
+msgstr "Cihaza {num_files} dosya gönderiliyor"
 
 #: src/nemo-kdeconnect.py:379
 msgid "Could not send files"
-msgstr "Could not send files"
+msgstr "Dosyalar gönderilemedi"
 
 #: src/nemo-kdeconnect.py:380 src/nemo-kdeconnect.py:411 src/nemo-kdeconnect.py:442 src/nemo-kdeconnect.py:462
 msgid "KDE Connect reported: {error_message}"
-msgstr "KDE Connect reported: {error_message}"
+msgstr "KDE Connect bildirimi: {error_message}"
 
 #: src/nemo-kdeconnect.py:392 src/nemo-kdeconnect.py:423
 msgid "Unknown SFTP mount error"
-msgstr "Unknown SFTP mount error"
+msgstr "Bilinmeyen SFTP bağlama hatası"
 
 #: src/nemo-kdeconnect.py:394 src/nemo-kdeconnect.py:425
 msgid "Could not mount {device_name}"
-msgstr "Could not mount {device_name}"
+msgstr "{device_name} bağlanamadı"
 
 #: src/nemo-kdeconnect.py:404
 msgid "Phone storage opened"
-msgstr "Phone storage opened"
+msgstr "Telefon depolaması açıldı"
 
 #: src/nemo-kdeconnect.py:405
 msgid "{device_name} is available like a disk in Nemo"
-msgstr "{device_name} is available like a disk in Nemo"
+msgstr "{device_name}, Nemo'da disk gibi kullanılabilir"
 
 #: src/nemo-kdeconnect.py:410
 msgid "Could not open phone storage"
-msgstr "Could not open phone storage"
+msgstr "Telefon depolaması açılamadı"
 
 #: src/nemo-kdeconnect.py:434
 msgid "Phone storage mounted"
-msgstr "Phone storage mounted"
+msgstr "Telefon depolaması bağlandı"
 
 #: src/nemo-kdeconnect.py:435
 msgid "{device_name} is now available in Nemo sidebar"
-msgstr "{device_name} is now available in Nemo sidebar"
+msgstr "{device_name} artık Nemo yan panelinde kullanılabilir"
 
 #: src/nemo-kdeconnect.py:441
 msgid "Could not mount phone storage"
-msgstr "Could not mount phone storage"
+msgstr "Telefon depolaması bağlanamadı"
 
 #: src/nemo-kdeconnect.py:455
 msgid "Phone storage unmounted"
-msgstr "Phone storage unmounted"
+msgstr "Telefon depolamasının bağlantısı kesildi"
 
 #: src/nemo-kdeconnect.py:456
 msgid "{device_name} is no longer mounted"
-msgstr "{device_name} is no longer mounted"
+msgstr "{device_name} artık bağlı değil"
 
 #: src/nemo-kdeconnect.py:461
 msgid "Could not unmount phone storage"
-msgstr "Could not unmount phone storage"
+msgstr "Telefon depolamasının bağlantısı kesilemedi"
 
 #: src/nemo-kdeconnect.py:520
 msgid "No compatible KDE Connect devices are currently available"
-msgstr "No compatible KDE Connect devices are currently available"
+msgstr "Şu anda uyumlu KDE Connect cihazı bulunamadı"
 
 #: src/nemo-kdeconnect.py:552
 msgid "Actions for {device_name}"
-msgstr "Actions for {device_name}"
+msgstr "{device_name} için eylemler"
 
 #: src/nemo-kdeconnect.py:562
 msgid "Send selected files"
-msgstr "Send selected files"
+msgstr "Seçili dosyaları gönder"
 
 #: src/nemo-kdeconnect.py:563
 msgid "Send selected files to {device_name}"
-msgstr "Send selected files to {device_name}"
+msgstr "Seçili dosyaları {device_name} cihazına gönder"
 
 #: src/nemo-kdeconnect.py:572
 msgid "Browse phone storage"
-msgstr "Browse phone storage"
+msgstr "Telefon depolamasına göz at"
 
 #: src/nemo-kdeconnect.py:573
 msgid "Mount and open {device_name} storage"
-msgstr "Mount and open {device_name} storage"
+msgstr "{device_name} depolamasını bağla ve aç"
 
 #: src/nemo-kdeconnect.py:582
 msgid "Unmount phone storage"
-msgstr "Unmount phone storage"
+msgstr "Telefon depolaması bağlantısını kes"
 
 #: src/nemo-kdeconnect.py:583
 msgid "Unmount {device_name} storage"
-msgstr "Unmount {device_name} storage"
+msgstr "{device_name} depolaması bağlantısını kes"
 
 #: src/nemo-kdeconnect.py:590
 msgid "Mount phone storage"
-msgstr "Mount phone storage"
+msgstr "Telefon depolamasını bağla"
 
 #: src/nemo-kdeconnect.py:591
 msgid "Mount {device_name} storage for disk-like access"
-msgstr "Mount {device_name} storage for disk-like access"
+msgstr "Disk benzeri erişim için {device_name} depolamasını bağla"
 
 #: src/nemo-kdeconnect.py:605
 msgid "No matching KDE Connect actions are available for this selection"
-msgstr "No matching KDE Connect actions are available for this selection"
+msgstr "Bu seçim için uygun KDE Connect eylemi yok"
 
 #: src/nemo-kdeconnect.py:615 src/nemo-kdeconnect.py:624
 msgid "KDE Connect"
@@ -132,12 +132,12 @@ msgstr "KDE Connect"
 
 #: src/nemo-kdeconnect.py:616
 msgid "Share files and browse phone storage via KDE Connect"
-msgstr "Share files and browse phone storage via KDE Connect"
+msgstr "KDE Connect ile dosya paylaşın ve telefon depolamasına göz atın"
 
 #: src/nemo-kdeconnect.py:625
 msgid "Browse and mount phone storage via KDE Connect"
-msgstr "Browse and mount phone storage via KDE Connect"
+msgstr "KDE Connect ile telefon depolamasına göz atın ve bağlayın"
 
 #: src/nemo-kdeconnect.py:631
 msgid "Share files and browse mounted phone storage via KDE Connect directly from within Nemo."
-msgstr "Share files and browse mounted phone storage via KDE Connect directly from within Nemo."
+msgstr "Dosyaları paylaşın ve bağlı telefon depolamasını Nemo içinden doğrudan KDE Connect ile gezin."
