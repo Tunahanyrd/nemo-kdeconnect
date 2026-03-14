@@ -72,10 +72,11 @@ configure_kdeconnect_handler() {
 
     install -m 0755 "${URI_HANDLER_SOURCE}" "${URI_HANDLER_TARGET}"
     install -d "${APPLICATIONS_DIR}"
+    escaped_handler_path=$(printf '%s' "${URI_HANDLER_TARGET}" | sed 's/[\\ ]/\\\\&/g')
     cat > "${URI_HANDLER_DESKTOP_PATH}" <<EOF
 [Desktop Entry]
 Name=Nemo KDE Connect URI Handler
-Exec=python3 "${URI_HANDLER_TARGET}" %u
+Exec=python3 ${escaped_handler_path} %u
 Type=Application
 NoDisplay=true
 MimeType=x-scheme-handler/kdeconnect;

@@ -172,11 +172,11 @@ def configure_kdeconnect_handler(repo_root: Path, extensions_dir: Path, skip_han
 
     uri_handler_desktop_file = get_paths()["uri_handler_desktop_file"]
     uri_handler_desktop_file.parent.mkdir(parents=True, exist_ok=True)
-    escaped_target = str(uri_handler_target).replace('"', '\\"')
+    escaped_target = str(uri_handler_target).replace("\\", "\\\\").replace(" ", "\\ ")
     desktop_content = (
         "[Desktop Entry]\n"
         "Name=Nemo KDE Connect URI Handler\n"
-        f"Exec=python3 \"{escaped_target}\" %u\n"
+        f"Exec=python3 {escaped_target} %u\n"
         "Type=Application\n"
         "NoDisplay=true\n"
         "MimeType=x-scheme-handler/kdeconnect;\n"
