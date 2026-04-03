@@ -95,10 +95,6 @@ uv run scripts/install.py --uninstall --restart-nemo
 
 Note: uninstall removes the custom handler desktop entry and tries to restore a system KDE Connect fallback handler if available.
 
-## Debian based Distributions (e.g. Ubuntu, Linux Mint, ...)
-
- Install the `.deb` file from the [releases section](https://github.com/JoeJoeTV/nemo-extension-kdeconnect/releases)
-
 ## Other Distributions
 
  Download the `.tar.gz` or `.zip` file from the [releases section](https://github.com/JoeJoeTV/nemo-extension-kdeconnect/releases) and extract the contents of the `src/` folder in the archive into the nemo-python extensions folder (`~/.local/share/nemo-python/extensions`)
